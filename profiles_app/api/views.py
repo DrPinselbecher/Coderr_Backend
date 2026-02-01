@@ -1,0 +1,30 @@
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from profiles_app.models import Profile
+from .serializers import ProfileSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import redirect, get_object_or_404
+
+
+class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "user_id"
+
+    def get_queryset(self):
+        return Profile.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        profile = Profile.objects.get(user=request.user)
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data)
+    
+
+class ProfileRedirectView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profile, user=request.user)
+        return redirect(f"{profile.user.id}/")
