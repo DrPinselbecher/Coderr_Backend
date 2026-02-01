@@ -8,14 +8,11 @@ from rest_framework.views import APIView
 from django.shortcuts import redirect, get_object_or_404
 
 
-class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
+class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     lookup_field = "user_id"
-
-    def get_queryset(self):
-        return Profile.objects.all()
 
     def list(self, request, *args, **kwargs):
         profile = Profile.objects.get(user=request.user)
