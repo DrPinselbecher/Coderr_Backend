@@ -138,3 +138,40 @@ class ProfileDetailEndpointNegativeTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+class ProfileDetailPermissionTests(APITestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(
+            username="user_one",
+            email="user@one.de",
+            password="passwordOne",
+            first_name="User",
+            last_name="One",
+        )
+        self.profile1 = Profile.objects.create(user=self.user1, type="customer")
+        self.token1 = Token.objects.create(user=self.user1)
+
+        self.user2 = User.objects.create_user(
+            username="user_two",
+            email="user@two.de",
+            password="passwordTwo",
+            first_name="User",
+            last_name="Two",
+        )
+        self.profile2 = Profile.objects.create(user=self.user2, type="business")
+        self.token2 = Token.objects.create(user=self.user2)
+
+        self.url1 = reverse("profile-detail", args=[self.user1.profile.id])
+        self.url2 = reverse("profile-detail", args=[self.user2.profile.id])
+
+    def test_user_cannot_access_other_users_profile(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token1.key}")
+        response = self.client.get(self.url2)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+    def test_user_can_access_own_profile(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token1.key}")
+        response = self.client.get(self.url1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["username"], self.user1.username)
+
+

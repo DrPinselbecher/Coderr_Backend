@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from profiles_app.models import Profile
 from .serializers import ProfileSerializer
+from .permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import redirect, get_object_or_404
@@ -10,7 +11,7 @@ from django.shortcuts import redirect, get_object_or_404
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     lookup_field = "user_id"
 
     def get_queryset(self):
