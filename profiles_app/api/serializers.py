@@ -69,7 +69,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     
 
-class BusinessProfileListSerializer(
+class ProfileSummarySerializer(
     NullToEmptyStringMixin,
     BaseProfileSerializer
 ):

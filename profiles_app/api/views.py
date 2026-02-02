@@ -1,7 +1,7 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from profiles_app.models import Profile
-from .serializers import ProfileSerializer, BusinessProfileListSerializer
+from .serializers import ProfileSerializer, ProfileSummarySerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -30,12 +30,24 @@ class ProfileRedirectView(APIView):
 
 class BusinessProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = BusinessProfileListSerializer
+    serializer_class = ProfileSummarySerializer
 
     def get_queryset(self):
         return (
             Profile.objects
             .select_related("user")
             .filter(type="business")
+            .order_by("user__username")
+        )
+    
+class CustomerProfileListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSummarySerializer
+
+    def get_queryset(self):
+        return (
+            Profile.objects
+            .select_related("user")
+            .filter(type="customer")
             .order_by("user__username")
         )
