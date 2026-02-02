@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from profiles_app.models import Profile
+from django.db import transaction
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -21,15 +22,23 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("repeated_password")
         password = validated_data.pop("password")
-        validated_data.pop("type")
+        profile_type = validated_data.pop("type")
 
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        with transaction.atomic():
+            user = User(
+                username=validated_data["username"],
+                email=validated_data["email"],
+            )
+            user.set_password(password)
+            user.save()
 
-        Profile.objects.create(user=user, type=validated_data.get("type", "customer"))
+            Profile.objects.create(
+                user=user,
+                type=profile_type,
+            )
 
         return user
+
     
 
 class EmailAuthTokenSerializer(serializers.Serializer):
