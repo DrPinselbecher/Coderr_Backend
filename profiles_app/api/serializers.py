@@ -2,6 +2,31 @@ from rest_framework import serializers
 from profiles_app.models import Profile
 
 
+class NullToEmptyStringMixin:
+    non_null_fields = []
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        for field in self.non_null_fields:
+            if data.get(field) is None:
+                data[field] = ""
+
+        return data
+
+
+class BaseProfileSerializer(serializers.ModelSerializer):
+    user = serializers.IntegerField(source="user_id", read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = "__all__"
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
 
@@ -16,12 +41,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
+            "email",
             "location",
             "tel",
             "description",
             "working_hours",
             "type",
-            "email",
             "file",
             "created_at",
         ]
@@ -33,12 +58,40 @@ class ProfileSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-    def update(self, instance, validated_data):  # Wird aufgerufen, wenn ein bestehendes Profile aktualisiert wird (PUT/PATCH)
-        user_data = validated_data.pop("user", {})  # Holt verschachtelte User-Daten (aus source="user.*") raus und entfernt sie aus validated_data
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
 
-        for attr in ("first_name", "last_name", "email"):  # Geht die User-Felder durch, die wir aktualisieren wollen
-            setattr(instance.user, attr, user_data[attr])  # Setzt z.B. instance.user.first_name = user_data["first_name"] (dynamisch per Attributname)
-        instance.user.save()  # Speichert die Änderungen am User in der Datenbank
+        for attr in ("first_name", "last_name", "email"):
+            if attr in user_data:
+                setattr(instance.user, attr, user_data[attr])
 
-        return super().update(instance, validated_data)  # Aktualisiert danach die restlichen Profile-Felder (location, tel, ...) und gibt das aktualisierte Profil zurück
+        instance.user.save()
+        return super().update(instance, validated_data)
+    
 
+class BusinessProfileListSerializer(
+    NullToEmptyStringMixin,
+    BaseProfileSerializer
+):
+    non_null_fields = [
+        "first_name",
+        "last_name",
+        "location",
+        "tel",
+        "description",
+        "working_hours",
+    ]
+
+    class Meta(BaseProfileSerializer.Meta):
+        fields = [
+            "user",
+            "username",
+            "first_name",
+            "last_name",
+            "file",
+            "location",
+            "tel",
+            "description",
+            "working_hours",
+            "type",
+        ]
