@@ -8,6 +8,6 @@ router.register(r'', ProfileViewSet, basename='profile')
 urlpatterns = [
     path('business/', BusinessProfileListView.as_view(), name='business-profile-list'),
     path('customer/', CustomerProfileListView.as_view(), name='customer-profile-list'),
-    path('', ProfileRedirectView.as_view()),
+    path("", ProfileRedirectView.as_view(), name="profile-redirect"),
     path('', include(router.urls)),
 ]
