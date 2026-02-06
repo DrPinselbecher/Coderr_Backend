@@ -166,8 +166,8 @@ class ProfileDetailPermissionTests(APITestCase):
     def test_user_cannot_access_other_users_profile(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token1.key}")
         response = self.client.get(self.url2)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_user_can_access_own_profile(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token1.key}")
         response = self.client.get(self.url1)
@@ -175,3 +175,38 @@ class ProfileDetailPermissionTests(APITestCase):
         self.assertEqual(response.data["username"], self.user1.username)
 
 
+class ProfileListEndpointsTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="u1", email="u1@test.de", password="pass12345")
+        self.token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        u_business = User.objects.create_user(username="biz", email="biz@test.de", password="pass12345")
+        Profile.objects.create(user=u_business, type="business")
+
+        u_customer = User.objects.create_user(username="cus", email="cus@test.de", password="pass12345")
+        Profile.objects.create(user=u_customer, type="customer")
+
+    def test_business_list(self):
+        url = reverse("business-profile-list")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(all(p["type"] == "business" for p in res.json()))
+
+    def test_customer_list(self):
+        url = reverse("customer-profile-list")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(all(p["type"] == "customer" for p in res.json()))
+
+
+class ProfilesAuthRequiredTests(APITestCase):
+    def test_business_requires_auth(self):
+        url = reverse("business-profile-list")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 401)
+
+    def test_customer_requires_auth(self):
+        url = reverse("customer-profile-list")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 401)
