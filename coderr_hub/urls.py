@@ -19,6 +19,8 @@ from django.urls import path
 from django.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
+from offers_app.api.views import OfferDetailViewSet
+from offers_app.api.redirects import offerdetail_redirect
 
 urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
@@ -27,6 +29,8 @@ urlpatterns = [
     path("api/profile/", include("profiles_app.api.urls")),
     path("api/profiles/", include("profiles_app.api.urls")),
     path("api/offers/", include("offers_app.api.urls")),
+    path("api/offerdetails/<int:pk>/",OfferDetailViewSet.as_view({"get": "retrieve"})),
+    path("offerdetails/<int:pk>/", offerdetail_redirect),
 ]
 
 if settings.DEBUG:
