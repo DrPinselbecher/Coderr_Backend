@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'profiles_app',
     'reviews_app',
     'user_auth_app',
+    'core',
 ]
 
 MIDDLEWARE = [

@@ -26,6 +26,8 @@ urlpatterns = [
     path("api/completed-order-count/<int:business_user_id>/", CompletedOrderCountView.as_view(), name="completed-order-count"),
 
     path("api/reviews/", include("reviews_app.api.urls")),
+
+    path("api/base-info/", include("core.api.urls")),
 ]
 
 if settings.DEBUG:
