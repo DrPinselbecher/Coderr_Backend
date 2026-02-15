@@ -1,8 +1,16 @@
+"""
+Reviews endpoint:
+- list: authenticated, filterable + orderable
+- create: authenticated + customer only
+- partial_update: authenticated + review owner, only rating/description allowed
+- destroy: authenticated + review owner
+"""
+
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews_app.models import Review
 from .filters import ReviewFilter
@@ -22,6 +30,11 @@ class ReviewsViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    """
+    Review CRUD subset:
+        - list, create, partial_update, destroy
+    """
+
     queryset = Review.objects.all()
     permission_classes = [IsAuthenticated]
 
@@ -30,15 +43,25 @@ class ReviewsViewSet(
     ordering_fields = ["updated_at", "rating"]
 
     def get_permissions(self):
+        """
+        Base: authenticated
+        Extra:
+            - create: customer only
+            - partial_update/destroy: owner only
+        """
         permissions = super().get_permissions()
 
         if self.action == "create":
             permissions.append(IsCustomerUser())
         if self.action in ["partial_update", "destroy"]:
             permissions.append(IsReviewOwner())
+
         return permissions
 
     def get_serializer_class(self):
+        """
+        Serializer by action.
+        """
         if self.action == "create":
             return ReviewCreateSerializer
         if self.action == "partial_update":
@@ -48,6 +71,9 @@ class ReviewsViewSet(
         return ReviewDetailSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Create a review and return a detail payload.
+        """
         serializer = ReviewCreateSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         review = serializer.save()
@@ -58,6 +84,9 @@ class ReviewsViewSet(
         )
 
     def partial_update(self, request, *args, **kwargs):
+        """
+        Patch rating/description only. Reject any other keys.
+        """
         allowed_keys = {"rating", "description"}
         extra_keys = set(request.data.keys()) - allowed_keys
         if extra_keys:
@@ -80,6 +109,9 @@ class ReviewsViewSet(
         )
 
     def destroy(self, request, *args, **kwargs):
+        """
+        Delete the review and return 204.
+        """
         review = self.get_object()
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

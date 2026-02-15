@@ -1,5 +1,9 @@
-# core/api/urls.py
+"""
+URL routing for the base info endpoint.
+"""
+
 from django.urls import path
+
 from .views import BaseInfoView
 
 urlpatterns = [

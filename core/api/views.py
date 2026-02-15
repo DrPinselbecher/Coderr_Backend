@@ -1,4 +1,9 @@
-# core/api/views.py
+"""
+Public endpoint to deliver aggregated "base info" stats used on landing pages
+or dashboards (e.g., total reviews, average rating, number of business profiles,
+and total offers).
+"""
+
 from django.db.models import Avg
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -11,9 +16,28 @@ from .serializers import BaseInfoSerializer
 
 
 class BaseInfoView(APIView):
+    """
+    Return aggregated platform statistics.
+
+    Authentication:
+        - Public endpoint (AllowAny)
+
+    Response schema:
+        - review_count: int
+        - average_rating: float (1 decimal)
+        - business_profile_count: int
+        - offer_count: int
+    """
+
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
+        """
+        Get aggregated base info statistics.
+
+        Returns:
+            Response: Serialized BaseInfo payload.
+        """
         review_count = Review.objects.count()
 
         avg_rating = Review.objects.aggregate(avg=Avg("rating"))["avg"]
@@ -22,12 +46,12 @@ class BaseInfoView(APIView):
         business_profile_count = Profile.objects.filter(type="business").count()
         offer_count = Offer.objects.count()
 
-        data = {
+        payload = {
             "review_count": review_count,
             "average_rating": average_rating,
             "business_profile_count": business_profile_count,
             "offer_count": offer_count,
         }
 
-        serializer = BaseInfoSerializer(data)
+        serializer = BaseInfoSerializer(payload)
         return Response(serializer.data)

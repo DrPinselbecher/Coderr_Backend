@@ -1,3 +1,10 @@
+"""
+Serializers for orders API:
+- Create flow based on OfferDetail snapshotting into Order
+- List output
+- Patch status only
+"""
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -6,6 +13,10 @@ from orders_app.models import Order
 
 
 class OrderCreateResponseSerializer(serializers.ModelSerializer):
+    """
+    Response payload after creating an order.
+    """
+
     class Meta:
         model = Order
         fields = [
@@ -24,6 +35,10 @@ class OrderCreateResponseSerializer(serializers.ModelSerializer):
 
 
 class OrderUpdateResponseSerializer(serializers.ModelSerializer):
+    """
+    Response payload after updating an order (status changes).
+    """
+
     class Meta:
         model = Order
         fields = [
@@ -43,6 +58,10 @@ class OrderUpdateResponseSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
+    """
+    List/retrieve payload for orders.
+    """
+
     class Meta:
         model = Order
         fields = [
@@ -62,11 +81,23 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.Serializer):
+    """
+    Create payload for an order.
+
+    Input:
+        - offer_detail_id: int
+
+    Behavior:
+        - Copies (snapshots) OfferDetail fields into the Order at creation time.
+    """
+
     offer_detail_id = serializers.IntegerField()
 
     def create(self, validated_data):
         request = self.context["request"]
-        offer_detail = get_object_or_404(OfferDetail, pk=validated_data["offer_detail_id"])
+        offer_detail = get_object_or_404(
+            OfferDetail, pk=validated_data["offer_detail_id"]
+        )
 
         order = Order.objects.create(
             customer_user=request.user,
@@ -83,6 +114,10 @@ class OrderCreateSerializer(serializers.Serializer):
 
 
 class OrderStatusPatchSerializer(serializers.ModelSerializer):
+    """
+    Patch serializer for status changes only.
+    """
+
     status = serializers.ChoiceField(choices=Order.Status.choices)
 
     class Meta:

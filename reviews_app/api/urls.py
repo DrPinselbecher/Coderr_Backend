@@ -1,4 +1,8 @@
-from django.urls import path, include
+"""
+DRF router configuration for reviews endpoints.
+"""
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import ReviewsViewSet
