@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from offers_app.models import Offer
 from profiles_app.models import Profile
 from reviews_app.models import Review
+from .serializers import BaseInfoSerializer
 
 
 class BaseInfoView(APIView):
@@ -21,11 +22,12 @@ class BaseInfoView(APIView):
         business_profile_count = Profile.objects.filter(type="business").count()
         offer_count = Offer.objects.count()
 
-        return Response(
-            {
-                "review_count": review_count,
-                "average_rating": average_rating,
-                "business_profile_count": business_profile_count,
-                "offer_count": offer_count,
-            }
-        )
+        data = {
+            "review_count": review_count,
+            "average_rating": average_rating,
+            "business_profile_count": business_profile_count,
+            "offer_count": offer_count,
+        }
+
+        serializer = BaseInfoSerializer(data)
+        return Response(serializer.data)
