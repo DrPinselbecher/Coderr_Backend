@@ -28,15 +28,15 @@ Frontend Repository:
 
 ## 📦 Technologies & Requirements
 
-| Technology               | Version / Info        |
-|--------------------------|-----------------------|
-| Python                   | 3.11+                 |
-| Django                   | 6.x                   |
-| Django REST Framework    | 3.x                   |
-| Django Filters           | 25.x                  |
-| Database                 | SQLite (default)      |
-| Authentication           | DRF TokenAuth         |
-| Development Environment  | VS Code recommended   |
+| Technology              | Version / Info        |
+|-------------------------|-----------------------|
+| Python                  | 3.13.2                |
+| Django                  | 5.2.x (LTS)           |
+| Django REST Framework   | 3.16.1                |
+| django-filter           | 25.2                  |
+| Database                | SQLite (default)      |
+| Development Environment | VS Code recommended   |
+
 
 ---
 
