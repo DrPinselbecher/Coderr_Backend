@@ -243,9 +243,6 @@ class OfferPatchSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        """
-        Patch Offer fields and (optionally) patch nested OfferDetail items by offer_type.
-        """
         details_data = validated_data.pop("details", None)
 
         for field, val in validated_data.items():
@@ -256,7 +253,12 @@ class OfferPatchSerializer(serializers.ModelSerializer):
             details_by_type = {d.offer_type: d for d in instance.details.all()}
 
             for patch in details_data:
-                offer_type = patch.pop("offer_type")
+                offer_type = patch.pop("offer_type", None)
+                if not offer_type:
+                    raise serializers.ValidationError(
+                        {"details": "offer_type is required for each detail patch."}
+                    )
+
                 detail = details_by_type.get(offer_type)
                 if not detail:
                     raise serializers.ValidationError(
