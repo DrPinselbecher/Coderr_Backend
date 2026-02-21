@@ -34,33 +34,45 @@ Frontend Repository:
 | Django                  | 5.2.x (LTS)           |
 | Django REST Framework   | 3.16.1                |
 | django-filter           | 25.2                  |
+| django-cors-headers     | 4.x                   |
+| python-dotenv           | 1.x                   |
 | Database                | SQLite (default)      |
 | Development Environment | VS Code recommended   |
-
 
 ---
 
 ## ⚙️ Installation & Setup
 
-### ✅ 1. Clone the FRONTEND repository
+### ✅ 1. Clone BOTH repositories (same parent folder)
 
 ```bash
 git clone https://github.com/DrPinselbecher/Coderr_Frontend
-cd Coderr_Frontend
+git clone https://github.com/DrPinselbecher/Coderr_Backend
 ```
 
-### ✅ 2. Clone the BACKEND repository
+Expected folder structure:
+
+```text
+your-folder/
+├── Coderr_Frontend/
+└── Coderr_Backend/
+```
+
+---
+
+## 🖥 Backend Setup (Django)
+
+### ✅ 2. Go into the backend folder
 
 ```bash
-git clone https://github.com/DrPinselbecher/Coderr_Backend
 cd Coderr_Backend
 ```
 
 ### ✅ 3. Create & activate virtual environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate        # macOS/Linux
+python -m venv env
+source env/bin/activate        # macOS/Linux
 venv\Scripts\activate           # Windows
 ```
 
@@ -70,23 +82,40 @@ venv\Scripts\activate           # Windows
 pip install -r requirements.txt
 ```
 
----
+### ✅ 5. Create your local `.env` file
 
-## ▶️ Start Project
+Create a file named **.env** in the same directory as **manage.py**.
 
-### 👉 1. Run database migrations
+Example `.env`:
+
+```env
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
+```
+
+Generate a secure secret key (recommended):
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Copy the generated value into `DJANGO_SECRET_KEY`.
+
+### ✅ 6. Run database migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 👉 2. Create admin user (optional)
+### ✅ 7. Create admin user (optional)
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 👉 3. Start the server
+### ✅ 8. Start the backend server
 
 ```bash
 python manage.py runserver
@@ -97,19 +126,40 @@ Backend runs at:
 
 ---
 
+## 🌐 Frontend Setup
+
+### ✅ 9. Go into the frontend folder (new terminal)
+
+```bash
+cd ../Coderr_Frontend
+```
+
+Start the frontend (depending on your setup):
+
+```bash
+npm install
+npm start
+```
+
+If using VS Code Live Server (port 5500):
+- Origin: http://127.0.0.1:5500
+- CORS is already configured in backend via `.env`
+
+---
+
 ## 🔐 Authentication
 
 Authentication is handled via **DRF Token Authentication**.
 
 ### Register
 
-```bash
+```text
 POST /api/registration/
 ```
 
 ### Login
 
-```bash
+```text
 POST /api/login/
 ```
 
@@ -126,7 +176,7 @@ Both endpoints return:
 
 Use token in request headers:
 
-```
+```text
 Authorization: Token your_token_here
 ```
 
@@ -186,7 +236,6 @@ Response structure (paginated):
   - reviewer_id
 
 ### 📊 Base Info Endpoint
-
 Aggregated statistics endpoint returning:
 
 - review_count
@@ -198,15 +247,7 @@ Aggregated statistics endpoint returning:
 
 ## 🧪 Testing
 
-The backend includes a full DRF test suite covering:
-
-- Endpoints
-- Permissions
-- Serializers
-- Search & Filters
-- Redirect logic
-
-Run tests:
+Run all tests:
 
 ```bash
 python manage.py test
@@ -214,12 +255,22 @@ python manage.py test
 
 ---
 
-## 📄 Example Requirements (requirements.txt)
+## 📄 Requirements
 
-```bash
-Django==5.x
-djangorestframework==3.x
-django-filter
+Use the versions defined in `requirements.txt`.
+
+Example (may vary depending on repo state):
+
+```text
+asgiref==3.11.0
+Django==5.2.x
+django-filter==25.2
+djangorestframework==3.16.1
+pillow==12.1.0
+sqlparse==0.5.5
+tzdata==2025.3
+python-dotenv==1.x
+django-cors-headers==4.x
 ```
 
 ---
@@ -238,3 +289,4 @@ This backend is part of a full-stack portfolio project.
 
 Frontend Repository:
 👉 https://github.com/DrPinselbecher/Coderr_Frontend
+```
