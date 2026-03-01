@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtualenvs
+env/
+venv/
+.venv/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+logs/
+
+# Tests / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Node (falls Frontend im Repo)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore

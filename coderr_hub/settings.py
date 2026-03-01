@@ -117,3 +117,5 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
+
+SYNC_TEST = "WINDOWS_OK"
