@@ -45,3 +45,6 @@ yarn-error.log
 Dockerfile*
 docker-compose*
 .dockerignore
+
+# Batch Files
+*.bat
