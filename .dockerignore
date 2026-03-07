@@ -48,3 +48,6 @@ docker-compose*
 
 # Batch Files
 *.bat
+
+# shell scripts
+*.sh
